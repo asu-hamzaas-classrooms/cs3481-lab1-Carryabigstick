@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <string>
 #include "Tools.h"
-
+#include <inttypes.h>
 /*
  * Hints/Notes:
  * 1) Pay attention to what the comments say. 
@@ -43,7 +43,12 @@
 */
 uint64_t Tools::buildLong(uint8_t bytes[LONGSIZE])
 {
-  return 0;
+  uint64_t final = bytes[7];
+  for(int i = LONGSIZE-2; i >= 0; i--)
+  {
+    final = (final << 8) + bytes[i];
+  }
+  return final; 
 }
 
 /** 
@@ -67,7 +72,15 @@ uint64_t Tools::buildLong(uint8_t bytes[LONGSIZE])
 */
 uint64_t Tools::getByte(uint64_t source, int32_t byteNum)
 {
-  return 0;
+  if(byteNum > 7 || byteNum < 0)
+  {
+    return 0; 
+  }
+  uint64_t final = source;
+  final = final >> (8*byteNum);
+  final = 0x000000000000FF & final;
+
+  return final;
 }
 
 /**
@@ -97,9 +110,23 @@ uint64_t Tools::getByte(uint64_t source, int32_t byteNum)
  */
 uint64_t Tools::getBits(uint64_t source, int32_t low, int32_t high)
 {
-  return 0;
+  if(low < 0 || high > 63)
+  {
+    return 0;
+  }
+  uint64_t final = source; 
+  final = final >> low;
+  final = final << (63-(high-low));
+  final = final >> (63-(high-low));
+  // uint64_t mask = (1 << ((high-low)))-1;
+
+  // final = final & (mask);
+
+  return final;
 }
 
+  // printf("source = %" PRIu64 "\n", mask);
+  
 
 /**
  * sets the bits of source in the range specified by the low and high
@@ -125,7 +152,21 @@ uint64_t Tools::getBits(uint64_t source, int32_t low, int32_t high)
  */
 uint64_t Tools::setBits(uint64_t source, int32_t low, int32_t high)
 {
-  return 0;
+  if(low < 0 || high > 63)
+  {
+    return source;
+  }
+  
+  // uint64_t final = source;
+  // // uint64_t extra = getBits(0,low)
+  // uint64_t mask = 0xFFFFFFFFFFFFFFFF;
+  // mask = mask << (63-(high-low));
+  // mask = mask >> (63-(high-low));
+  // mask = mask << (high-low);
+  // final = final | mask;
+  // return final; 
+
+
 }
 
 /**

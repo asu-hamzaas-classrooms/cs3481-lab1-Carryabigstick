@@ -152,19 +152,20 @@ uint64_t Tools::getBits(uint64_t source, int32_t low, int32_t high)
  */
 uint64_t Tools::setBits(uint64_t source, int32_t low, int32_t high)
 {
-  if(low < 0 || high > 63)
+  if(high < low || low < 0 || high > 63)
   {
     return source;
   }
+
+  uint64_t final = source;
+  uint64_t mask = ~0;
+  mask = mask << (63-(high-low));
+  mask = mask >> (63-(high-low));
+  mask = mask << low;
+  final = final | mask;
   
-  // uint64_t final = source;
-  // // uint64_t extra = getBits(0,low)
-  // uint64_t mask = 0xFFFFFFFFFFFFFFFF;
-  // mask = mask << (63-(high-low));
-  // mask = mask >> (63-(high-low));
-  // mask = mask << (high-low);
-  // final = final | mask;
-  // return final; 
+  return final; 
+
 
 
 }
@@ -191,7 +192,20 @@ uint64_t Tools::setBits(uint64_t source, int32_t low, int32_t high)
  */
 uint64_t Tools::clearBits(uint64_t source, int32_t low, int32_t high)
 {
-  return 0;
+  if(high < low || low < 0 || high > 63)
+  {
+    return source;
+  }
+
+  uint64_t final = source;
+  uint64_t mask = ~0;
+  mask = mask << (63-(high-low));
+  mask = mask >> (63-(high-low));
+  mask = mask << low;
+  final = final & ~mask;
+  
+  return final; 
+
 }
 
 
@@ -222,10 +236,23 @@ uint64_t Tools::clearBits(uint64_t source, int32_t low, int32_t high)
 uint64_t Tools::copyBits(uint64_t source, uint64_t dest, 
                          int32_t srclow, int32_t dstlow, int32_t length)
 {
-   return 0; 
+    uint32_t srchigh = srclow + (length-1);
+
+    if(srclow < 0 || dstlow < 0 || srchigh > 63 || dstlow+(length-1) > 63)
+    {
+        return dest;
+    }
+
+    uint64_t getCopy = source;
+    getCopy = getCopy << (63-(srchigh));
+    getCopy = getCopy >> (63-(srchigh-srclow));
+    getCopy = getCopy << (dstlow);
+    uint64_t final = clearBits(dest, dstlow,dstlow+(length-1));
+    final = final | getCopy;
+  
+    
+    return final;
 }
-
-
 /**
  * sets the bits of source identfied by the byte number to 1 and
  * returns that value. if the byte number is out of range then source
@@ -247,8 +274,19 @@ uint64_t Tools::copyBits(uint64_t source, uint64_t dest,
  */
 uint64_t Tools::setByte(uint64_t source, int32_t byteNum)
 {
-  return 0;
+  uint64_t mask = 0xff;
+  uint64_t final = source;
+  mask = mask << (8*byteNum);
+
+  for(int i = 0; i < 1 && (byteNum >= 8 || byteNum < 0) ; i++)
+  {
+    mask = 0x00;
+  }
+
+  final = final | mask;
+  return final; 
 }
+
 
 
 /**

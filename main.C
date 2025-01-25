@@ -38,6 +38,8 @@ static int clearBitsTests();
 static int signTests();
 static int addOverflowTests();
 static int subOverflowTests();
+static int copyBitsTests();
+static int setByteTests();
 
 /* code for parsing the command line arguments */
 static void parseArgs(int argc, char * argv[]);
@@ -59,7 +61,7 @@ static void usage(char * prog);
 */
 int main(int argc, char * argv[])
 {
-   int numFuns = 14;
+   int numFuns = 10;
    int funsPassed = 0;
    std::string check[] = { "\x1B[31m fail \x1B[0m", "\x1B[32m pass \x1B[0m"};
 
@@ -96,6 +98,14 @@ int main(int argc, char * argv[])
 
    pass = subOverflowTests();
    std::cout << "subOverflow tests:" << check[pass] << "\n";
+   funsPassed += pass;
+
+   pass = setByteTests();
+   std::cout << "setByte tests:" << check[pass] << "\n";
+   funsPassed += pass;
+
+   pass = copyBitsTests();
+   std::cout << "copyBits tests:" << check[pass] << "\n";
    funsPassed += pass;
 
    std::cout << "\n" << std::dec << funsPassed << " functions out of a total of " << numFuns
@@ -364,5 +374,81 @@ int signTests()
    pass &= myAssert(Tools::sign(0x0000000000000000), 0);
    pass &= myAssert(Tools::sign(0x1111111111111111), 0);
    pass &= myAssert(Tools::sign(0xffffffffffffffff), 1);
+   return pass;
+}
+
+
+/**
+ * tests the copyBits method in the Tools class
+ *
+ * copyBits copies length bits from the source to a destination and returns the
+ * modified destination. If low bit number of the source or
+ * dest is out of range or the calculated source or dest high bit
+ * number is out of range, then the unmodified destination is returned.
+ * uint64_t Tools::copyBits(uint64_t source, uint64_t dest,
+ *                          int32_t srclow, int32_t dstlow, int32_t length)
+*/
+int copyBitsTests()
+{
+   int pass;
+
+   pass = myAssert(Tools::sign(0x1122334455667788), 0);
+
+   pass &= myAssert(Tools::copyBits(0x1122334455667788, 0x8877665544332211, 0, 0, 8),
+         0x8877665544332288);
+   pass &= myAssert(Tools::copyBits(0x1122334455667788, 0x8877665544332211, 0, 8, 8),
+         0x8877665544338811);
+   pass &= myAssert(Tools::copyBits(0x1122334455667788, 0x8877665544332211, 8, 4, 4),
+         0x8877665544332271);
+   pass &= myAssert(Tools::copyBits(0x1122334455667788, 0x1877665544332211, 3, 0x3f, 1),
+         0x9877665544332211);
+   pass &= myAssert(Tools::copyBits(0x1122334455667788, 0x1877665544332211, 3, 0x40, 1),
+         0x1877665544332211);
+   pass &= myAssert(Tools::copyBits(0x1122334455667788, 0x1877665544332211, 0xfffffffe, 
+          0x3f, 1), 0x1877665544332211);
+   pass &= myAssert(Tools::copyBits(0x1122334455667788, 0x1877665544332211, 3, 0x3f, 2),
+         0x1877665544332211);
+   pass &= myAssert(Tools::copyBits(0x1122334455667788, 0x8877665544332211, 8, 8, 0x10),
+         0x8877665544667711);
+
+
+   return pass;
+}
+
+/**
+ * tests the setByte method in the Tools class
+ *
+ * setByte sets the bits of source identfied by the byte number to 1 and
+ * returns that value. if the byte number is out of range then source
+ * is returned unchanged.
+ * uint64_t Tools::setByte(uint64_t source, int32_t byteNum)
+*/
+int setByteTests()
+{
+   int pass;
+   pass = myAssert(Tools::setByte(0x1122334455667788, 0), 0x11223344556677ff);
+   pass &= myAssert(Tools::setByte(0x1122334455667788, 1), 0x112233445566ff88);
+   pass &= myAssert(Tools::setByte(0x1122334455667788, 2), 0x1122334455ff7788);
+   pass &= myAssert(Tools::setByte(0x1122334455667788, 3), 0x11223344ff667788);
+   pass &= myAssert(Tools::setByte(0x1122334455667788, 4), 0x112233ff55667788);
+   pass &= myAssert(Tools::setByte(0x1122334455667788, 5), 0x1122ff4455667788);
+   pass &= myAssert(Tools::setByte(0x1122334455667788, 6), 0x11ff334455667788);
+   pass &= myAssert(Tools::setByte(0x1122334455667788, 7), 0xff22334455667788);
+   pass &= myAssert(Tools::setByte(0x1122334455667788, 8), 0x1122334455667788);
+   pass &= myAssert(Tools::setByte(0x1122334455667788, -1), 0x1122334455667788);
+   pass &= myAssert(Tools::setByte(0x1122334455667788, -2), 0x1122334455667788);
+   pass &= myAssert(Tools::setByte(0x0000000000000000, 7), 0xff00000000000000);
+   pass &= myAssert(Tools::setByte(0x0000000000000000, 6), 0x00ff000000000000);
+   pass &= myAssert(Tools::setByte(0x0000000000000000, 5), 0x0000ff0000000000);
+   pass &= myAssert(Tools::setByte(0x0000000000000000, 4), 0x000000ff00000000);
+   pass &= myAssert(Tools::setByte(0x0000000000000000, 3), 0x00000000ff000000);
+   pass &= myAssert(Tools::setByte(0x0000000000000000, 2), 0x0000000000ff0000);
+   pass &= myAssert(Tools::setByte(0x0000000000000000, 1), 0x000000000000ff00);
+   pass &= myAssert(Tools::setByte(0x0000000000000000, 0), 0x00000000000000ff);
+   pass &= myAssert(Tools::setByte(0x0000000000000000, 8), 0x0000000000000000);
+   pass &= myAssert(Tools::setByte(0x0000000000000000, -1), 0x0000000000000000);
+   pass &= myAssert(Tools::setByte(0x0023000000000000, -2), 0x0023000000000000);
+   pass &= myAssert(Tools::setByte(0x0023000000000000, 0x7fffffff), 0x0023000000000000);
+
    return pass;
 }

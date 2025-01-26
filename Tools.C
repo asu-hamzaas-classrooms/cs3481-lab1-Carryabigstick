@@ -231,10 +231,15 @@ uint64_t Tools::copyBits(uint64_t source, uint64_t dest,
   getCopy = getCopy << (63 - (srchigh));
   getCopy = getCopy >> (63 - (srchigh - srclow));
   getCopy = getCopy << (dstlow);
-  uint64_t final = clearBits(dest, dstlow, dstlow + (length - 1));
-  final = final | getCopy;
-
-  return final;
+  // Not sure if using clearBits is allowed given the Restriction
+  // uint64_t final = clearBits(dest, dstlow, dstlow + (length - 1));
+  uint64_t mask = ~0;
+  mask = mask << (63 - ((dstlow + (length - 1)) - dstlow));
+  mask = mask >> (63 - ((dstlow + (length - 1)) - dstlow));
+  mask = mask << dstlow;
+  dest = dest & ~mask;
+  dest = dest | getCopy;
+  return dest;
 }
 /**
  * sets the bits of source identfied by the byte number to 1 and

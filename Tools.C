@@ -5,19 +5,19 @@
 #include <inttypes.h>
 /*
  * Hints/Notes:
- * 1) Pay attention to what the comments say. 
+ * 1) Pay attention to what the comments say.
  * 2) Sometimes a function returns the source input if input validation
  *    fails and sometimes it returns 0.
  * 3) Pay attention to the "rules".
  * 4) You won't get credit for a method if it passes the tests but
  *    breaks the "rules".
  * 5) if the rule is no loops then you cannot use while, do-while, for
- * 6) if the rule is no conditionals then you cannot use if, if-else, 
- *    switch or ternary statements 
+ * 6) if the rule is no conditionals then you cannot use if, if-else,
+ *    switch or ternary statements
  * 7) The last 6 function restrict the operators that can be used. If
  *    used any other operators than those, you will not receive credit.
  * 8) If you shift a variable by an amount that is equal to or
- *    larger than its size, then the shift doesn't happen. For example, 
+ *    larger than its size, then the shift doesn't happen. For example,
  *    if n is a 64 bit unsigned int then n >> 64 is n (not 0).
  * 9) If you need a 64 bit constant, you need to follow the constant
  *    by either ul (unsigned long), l (long), ull (unsigned long long),
@@ -25,36 +25,36 @@
  *    By default, 3 without the suffix is a 32 bit int.
  * 10) >> (right shift) shifts off low order bits
  * 11) << (left shift) shifts off high order bits
- * 12) right shift of a signed variable maintains the sign bit; 
+ * 12) right shift of a signed variable maintains the sign bit;
  *     right shift of an unsigned variable brings in 0 as the sign bit
  *
  */
 
-/** 
+/**
  * builds a 64-bit long out of an array of 8 bytes
  *
  * @param array of 8 bytes
  * @return uint64_t where the low order byte is bytes[0] and
  *         the high order byte is bytes[7]
  *
- * RULES: 
+ * RULES:
  *   1) no more than ten lines of code
  *   2) use a loop
-*/
+ */
 uint64_t Tools::buildLong(uint8_t bytes[LONGSIZE])
 {
   uint64_t final = bytes[7];
-  for(int i = LONGSIZE-2; i >= 0; i--)
+  for (int i = LONGSIZE - 2; i >= 0; i--)
   {
     final = (final << 8) + bytes[i];
   }
-  return final; 
+  return final;
 }
 
-/** 
+/**
  * accepts as input an uint64_t and returns the designated byte
  * within the uint64_t; returns 0 if the indicated byte number
- * is out of range 
+ * is out of range
  *
  * for example, getByte(0x1122334455667788, 7) returns 0x11
  *              getByte(0x1122334455667788, 1) returns 0x77
@@ -69,24 +69,23 @@ uint64_t Tools::buildLong(uint8_t bytes[LONGSIZE])
  * RULES:
  * 1) you can use an if to handle error checking on input
  * 2) no loops or conditionals (other than for 1) or switch
-*/
+ */
 uint64_t Tools::getByte(uint64_t source, int32_t byteNum)
 {
-  if(byteNum > 7 || byteNum < 0)
+  if (byteNum > 7 || byteNum < 0)
   {
-    return 0; 
+    return 0;
   }
   uint64_t final = source;
-  final = final >> (8*byteNum);
+  final = final >> (8 * byteNum);
   final = 0x000000000000FF & final;
-
   return final;
 }
 
 /**
- * accepts as input an uint64_t and returns the bits low through 
+ * accepts as input an uint64_t and returns the bits low through
  * high of the uint64_t. bit 0 is the low order bit and bit 63
- * is the high order bit. returns 0 if the low or high bit numbers 
+ * is the high order bit. returns 0 if the low or high bit numbers
  * are out of range
  *
  * for example, getBits(0x8877665544332211, 0, 7) returns 0x11
@@ -94,14 +93,14 @@ uint64_t Tools::getByte(uint64_t source, int32_t byteNum)
  *              getBits(0x8877665544332211, 0, 63) returns 0x8877665544332211
  *              getBits(0x8877665544332211, 0, 64) returns 0
  *
- * @param uint64_t source that holds the bits to be grabbed and 
+ * @param uint64_t source that holds the bits to be grabbed and
  *        returned
  * @param int32_t low that is the bit number of the lowest numbered
  *        bit to be returned
  * @param int32_t high that is the bit number of the highest numbered
  *        bit to be returned
  * @return an uint64_t that holds a subset of the source bits
- *         that is returned in the low order bits; returns 0 if low or high 
+ *         that is returned in the low order bits; returns 0 if low or high
  *         is out of range
  *
  * RULES:
@@ -110,23 +109,16 @@ uint64_t Tools::getByte(uint64_t source, int32_t byteNum)
  */
 uint64_t Tools::getBits(uint64_t source, int32_t low, int32_t high)
 {
-  if(low < 0 || high > 63)
+  if (low < 0 || high > 63)
   {
     return 0;
   }
-  uint64_t final = source; 
+  uint64_t final = source;
   final = final >> low;
-  final = final << (63-(high-low));
-  final = final >> (63-(high-low));
-  // uint64_t mask = (1 << ((high-low)))-1;
-
-  // final = final & (mask);
-
+  final = final << (63 - (high - low));
+  final = final >> (63 - (high - low));
   return final;
 }
-
-  // printf("source = %" PRIu64 "\n", mask);
-  
 
 /**
  * sets the bits of source in the range specified by the low and high
@@ -138,7 +130,7 @@ uint64_t Tools::getBits(uint64_t source, int32_t low, int32_t high)
  *              setBits(0x1122334455667788, 8, 64) returns 0x1122334455667788
  *                      note: 64 is out of range
  *
- * @param uint64_t source 
+ * @param uint64_t source
  * @param int32_t low that is the bit number of the lowest numbered
  *        bit to be set to 1
  * @param int32_t high that is the bit number of the highest numbered
@@ -152,22 +144,19 @@ uint64_t Tools::getBits(uint64_t source, int32_t low, int32_t high)
  */
 uint64_t Tools::setBits(uint64_t source, int32_t low, int32_t high)
 {
-  if(high < low || low < 0 || high > 63)
+  if (high < low || low < 0 || high > 63)
   {
     return source;
   }
 
   uint64_t final = source;
   uint64_t mask = ~0;
-  mask = mask << (63-(high-low));
-  mask = mask >> (63-(high-low));
+  mask = mask << (63 - (high - low));
+  mask = mask >> (63 - (high - low));
   mask = mask << low;
   final = final | mask;
-  
-  return final; 
 
-
-
+  return final;
 }
 
 /**
@@ -178,7 +167,7 @@ uint64_t Tools::setBits(uint64_t source, int32_t low, int32_t high)
  * for example, clearBits(0x1122334455667788, 0, 7) returns 0x1122334455667700
  *              clearBits(0x1122334455667788, 8, f) returns 0x1122334455660088
  *
- * @param uint64_t source 
+ * @param uint64_t source
  * @param int32_t low that is the bit number of the lowest numbered
  *        bit to be set to 0
  * @param int32_t high that is the bit number of the highest numbered
@@ -192,37 +181,33 @@ uint64_t Tools::setBits(uint64_t source, int32_t low, int32_t high)
  */
 uint64_t Tools::clearBits(uint64_t source, int32_t low, int32_t high)
 {
-  if(high < low || low < 0 || high > 63)
+  if (high < low || low < 0 || high > 63)
   {
     return source;
   }
-
   uint64_t final = source;
   uint64_t mask = ~0;
-  mask = mask << (63-(high-low));
-  mask = mask >> (63-(high-low));
+  mask = mask << (63 - (high - low));
+  mask = mask >> (63 - (high - low));
   mask = mask << low;
   final = final & ~mask;
-  
-  return final; 
-
+  return final;
 }
-
 
 /**
  * copies length bits from the source to a destination and returns the
- * modified destination. If low bit number of the source or 
- * dest is out of range or the calculated source or dest high bit 
+ * modified destination. If low bit number of the source or
+ * dest is out of range or the calculated source or dest high bit
  * number is out of range, then the unmodified destination is returned.
  *
  * for example,
- *   copyBits(0x1122334455667788, 0x8877665544332211, 0, 0, 8) 
+ *   copyBits(0x1122334455667788, 0x8877665544332211, 0, 0, 8)
  *           returns 0x8877665544332288
- *   copyBits(0x1122334455667788, 0x8877665544332211, 0, 8, 8) 
+ *   copyBits(0x1122334455667788, 0x8877665544332211, 0, 8, 8)
  *           returns 0x8877665544338811
  *
- * @param uint64_t source 
- * @param uint64_t dest 
+ * @param uint64_t source
+ * @param uint64_t dest
  * @param int32_t srclow that is the bit number of the lowest numbered
  *        bit of the source to be copied
  * @param int32_t destlow that is the bit number of the lowest numbered
@@ -231,27 +216,25 @@ uint64_t Tools::clearBits(uint64_t source, int32_t low, int32_t high)
  * @return uint64_t that is the modifed dest
  *
  * RESTRICTIONS: You can only use an if statement to determine whether
- *               the low and high values are valid. 
+ *               the low and high values are valid.
  */
-uint64_t Tools::copyBits(uint64_t source, uint64_t dest, 
+uint64_t Tools::copyBits(uint64_t source, uint64_t dest,
                          int32_t srclow, int32_t dstlow, int32_t length)
 {
-    uint32_t srchigh = srclow + (length-1);
+  uint32_t srchigh = srclow + (length - 1);
 
-    if(srclow < 0 || dstlow < 0 || srchigh > 63 || dstlow+(length-1) > 63)
-    {
-        return dest;
-    }
+  if (srclow < 0 || dstlow < 0 || srchigh > 63 || dstlow + (length - 1) > 63)
+  {
+    return dest;
+  }
+  uint64_t getCopy = source;
+  getCopy = getCopy << (63 - (srchigh));
+  getCopy = getCopy >> (63 - (srchigh - srclow));
+  getCopy = getCopy << (dstlow);
+  uint64_t final = clearBits(dest, dstlow, dstlow + (length - 1));
+  final = final | getCopy;
 
-    uint64_t getCopy = source;
-    getCopy = getCopy << (63-(srchigh));
-    getCopy = getCopy >> (63-(srchigh-srclow));
-    getCopy = getCopy << (dstlow);
-    uint64_t final = clearBits(dest, dstlow,dstlow+(length-1));
-    final = final | getCopy;
-  
-    
-    return final;
+  return final;
 }
 /**
  * sets the bits of source identfied by the byte number to 1 and
@@ -262,7 +245,7 @@ uint64_t Tools::copyBits(uint64_t source, uint64_t dest,
  *              setByte(0x1122334455667788, 1) returns 0x112233445566ff88
  *              setByte(0x1122334455667788, 8) returns 0x1122334455667788
  *
- * @param uint64_t source 
+ * @param uint64_t source
  * @param int32_t byteNum that indicates the number of the byte to be
  *        set to 0xff; the low order byte is byte number 0
  * @return uint64_t that is source with byte byteNum set to 0xff
@@ -276,18 +259,11 @@ uint64_t Tools::setByte(uint64_t source, int32_t byteNum)
 {
   uint64_t mask = 0xff;
   uint64_t final = source;
-  mask = mask << (8*byteNum);
-
-  for(int i = 0; i < 1 && (byteNum >= 8 || byteNum < 0) ; i++)
-  {
-    mask = 0x00;
-  }
-
+  mask = mask << (8 * byteNum);
+  mask = mask * !(byteNum > 7 || byteNum < 0);
   final = final | mask;
-  return final; 
+  return final;
 }
-
-
 
 /**
  * assumes source contains a 64 bit two's complement value and
@@ -298,7 +274,7 @@ uint64_t Tools::setByte(uint64_t source, int32_t byteNum)
  *              sign(0x8000000000000000) returns 1
  *
  * @param uint64_t source
- * @return 1 if source is negative when treated as a two's complement 
+ * @return 1 if source is negative when treated as a two's complement
  *         value and 0 otherwise
  *
  * RULES:
@@ -307,7 +283,7 @@ uint64_t Tools::setByte(uint64_t source, int32_t byteNum)
  */
 uint64_t Tools::sign(uint64_t source)
 {
-  return 0;
+  return source >> 63;
 }
 
 /**
@@ -325,19 +301,28 @@ uint64_t Tools::sign(uint64_t source)
  *         and op2 contain 64-bit two's complement values
  *
  * RULES:
- * 1) no loops 
+ * 1) no loops
  * 2) you can use other functions you have written, for example, sign
  * 3) no more than 10 lines of code
  */
 bool Tools::addOverflow(uint64_t op1, uint64_t op2)
 {
-  //Hint: If an overflow occurs then it overflows by just one bit.
-  //      In other words, 65 bits would be needed to store the arithmetic 
-  //      result instead of 64 and the sign bit in the stored result (bit 63) is incorrect. 
-  //      Thus, the way to check for an overflow is to compare the signs of the
-  //      operand and the result.  For example, if you add two positive numbers, 
-  //      the result should be positive, otherwise an overflow occurred.
-  return false;
+  // Hint: If an overflow occurs then it overflows by just one bit.
+  //       In other words, 65 bits would be needed to store the arithmetic
+  //       result instead of 64 and the sign bit in the stored result (bit 63) is incorrect.
+  //       Thus, the way to check for an overflow is to compare the signs of the
+  //       operand and the result.  For example, if you add two positive numbers,
+  //       the result should be positive, otherwise an overflow occurred.
+
+  uint64_t sum_sign = Tools::sign(op1 + op2);
+  uint64_t op1_sign = Tools::sign(op1);
+  uint64_t op2_sign = Tools::sign(op2);
+
+  // Overflow if:
+  // op1 is positive and op2 is positive and sum is negative
+  // op1 is negative and op2 is negative and sum is positive
+  return (op1_sign && op2_sign && !sum_sign) ||
+         (!op1_sign && !op2_sign && sum_sign);
 }
 
 /**
@@ -355,16 +340,26 @@ bool Tools::addOverflow(uint64_t op1, uint64_t op2)
  *         and op2 contain 64-bit two's complement values
  *
  * RULES:
- * 1) no loops 
+ * 1) no loops
  * 2) you can use other functions you have written, for example, sign
  * 3) you cannot use addOverflow (it doesn't work in all cases).
  * 4) no more than 10 lines of code
  */
 bool Tools::subOverflow(uint64_t op1, uint64_t op2)
 {
-  //See hint for addOverflow
-  //Note: you can not simply use addOverflow in this function.  If you negate
-  //op1 in order to an add, you may get an overflow. 
-  //NOTE: the subtraction is op2 - op1 (not op1 - op2).
-  return false;
+  // See hint for addOverflow
+  // Note: you can not simply use addOverflow in this function.  If you negate
+  // op1 in order to an add, you may get an overflow.
+  // NOTE: the subtraction is op2 - op1 (not op1 - op2).
+  uint64_t difference = op2 - op1;
+
+  uint64_t sign_op1 = Tools::sign(op1);
+  uint64_t sign_op2 = Tools::sign(op2);
+  uint64_t difference_sign = Tools::sign(difference);
+
+  // Overflow if:
+  // op1 is positive and op2 is negative, difference is positive
+  // op1 is negative and op2 is positive, difference is negative
+  return (sign_op1 && !sign_op2 && difference_sign) ||
+         (!sign_op1 && sign_op2 && !difference_sign);
 }

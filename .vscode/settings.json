@@ -4,6 +4,8 @@
         "main.C": "cpp",
         "testmain.C": "cpp",
         "cstdint": "cpp",
-        "compare": "cpp"
+        "compare": "cpp",
+        "Tools.C": "cpp",
+        "string": "cpp"
     }
 }
